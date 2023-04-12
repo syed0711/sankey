@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset='utf-8'>
-<title>Sankey Gradients</title>
+<title>Sankey - Cost of Living</title>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/4.4.0/d3.min.js'></script>
 <script src='d3.sankey.js'></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.19.0/babel.min.js'></script>
@@ -16,172 +16,456 @@
     font-family: Helvetica;
     font-size: 12px;
   }
+
+  .slider {
+    position:sticky;
+    left:20px;
+    top:20px;
+    -webkit-appearance: none;
+    width: 1980px;
+    height: 15px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+  }
+
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #04AA6D;
+    cursor: pointer;
+  }
+
+  .slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #04AA6D;
+    cursor: pointer;
+  }
+
+  .bar {
+    fill: steelblue;
+  }
+
+  .axis path,
+  .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+
+  .axis--x path {
+    display: none;
+  }
+
+  /* Style the dropdown button */
+
+  .dropdown {
+    margin-top: 25px; /* adjust the value as needed */
+  }
+
+  .dropbtn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  /* Style the dropdown content */
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 135px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 5px;
+  }
+
+  /* Style the links inside the dropdown */
+  .dropdown-content a {
+    color: black;
+    padding: 10px 10px;
+    text-decoration: none;
+    display: block;
+    border-radius: 5px;
+    text-align: center;
+  }
+
+  /* Change color of dropdown links on hover */
+  .dropdown-content a:hover {
+    background-color: #f1f1f1;
+  }
+
+  /* Show the dropdown menu on hover */
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+
+  /* Change the background color of the dropdown button when the dropdown content is shown */
+  .dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+  }
+
 </style>
 <body>
+<div class="slidecontainer">
+  <input type="range" min="1" max="30" value="10" class="slider" id="range">
+</div>
+
+<div class="dropdown">
+  <button class="dropbtn">Graph Colours</button>
+  <div class="dropdown-content">
+    <a href="#" id="pastelRange">Pastel Range</a>
+    <a href="#" id="valentineScheme">Valentine Scheme</a>
+    <a href="#" id="staticModern">Static Modern</a>
+  </div>
+</div>
+
 <div id='chart'>
   <script lang='babel' type='text/babel'>
-    const units = '';
-    const margin = {top: 10, right: 10, bottom: 10, left: 10};
-    const width = 2000 - margin.left - margin.right;
-    const height = 2000 - margin.top - margin.bottom;
+    // Get references to the input and select elements
+    const slider = document.getElementById('range');
+    const pastelRange = document.getElementById('pastelRange');
+    const valentineScheme = document.getElementById('valentineScheme');
+    const staticModern = document.getElementById('staticModern');
 
-    // zero decimal places
-    const formatNumber = d3.format(',.0f');
+    // Define a variable to store the selected color scheme
+    let selectedColorScheme = 'staticModern';
 
-    const format = d => `${formatNumber(d)} ${units}`;
+    // Create event listeners for the input and select elements
+    slider.addEventListener('input', (event) => {
+      // remove current visualisation before generating the update
+      updateSankey(event.target.value, selectedColorScheme);
+    });
 
-    d3.select('#chart')
-            .style('visibility', 'visible');
+    // event listeners for the anchor elements
+    pastelRange.addEventListener('click', (event) => {
+      event.preventDefault();
+      selectedColorScheme = 'pastelRange';
+      updateSankey(slider.value, selectedColorScheme);
+    });
 
-    // append the svg canvas to the page
-    const svg = d3.select('#chart').append('svg')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
-            .append('g')
-            .attr('transform', `translate(${margin.left},${margin.top})`);
+    valentineScheme.addEventListener('click', (event) => {
+      event.preventDefault();
+      selectedColorScheme = 'valentineScheme';
+      updateSankey(slider.value, selectedColorScheme);
+    });
 
-    // set the sankey diagram properties
-    const sankey = d3.sankey()
-            .nodeWidth(40)
-            .nodePadding(2)
-            .size([width, height]);
+    staticModern.addEventListener('click', (event) => {
+      event.preventDefault();
+      selectedColorScheme = 'staticModern';
+      updateSankey(slider.value, selectedColorScheme);
+    });
 
-    const path = sankey.link();
+    updateSankey(slider.value, selectedColorScheme);
 
-    // append a defs (for definition) element to your SVG
-    const defs = svg.append('defs');
+    function updateSankey(sliderValue, colourScheme) {
+      d3.select('svg').remove();
+      d3.select("#bar-chart").remove();
 
-    // load the data
-    d3.json('datasets/dataset_curated.json', (error, graph) => {
-      sankey
-              .nodes(graph.nodes)
-              .links(graph.links)
-              .layout(13); // any value > 13 breaks the link gradient
+      // define diagram constants
+      const units = '%';
+      const margin = {top: 10, right: 10, bottom: 10, left: 10};
+      const width = 2000 - margin.left - margin.right;
+      const height = 2000 - margin.top - margin.bottom;
 
+      // zero decimal places
+      const formatNumber = d3.format(',.2f') ;
 
+      const format = d => `${formatNumber(d)} ${units}`;
 
-      function getRandomInt(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
-      }
+      d3.select('#chart')
+              .style('visibility', 'visible');
 
-      let nodeNames = [];
-      let genColours = [];
-      for (let i = 0; i < graph.nodes.length; i++) {
-        nodeNames.push(graph.nodes[i]["name"]);
+      // append the svg canvas to the page
+      const svg = d3.select('#chart').append('svg')
+              .attr('width', width + margin.left + margin.right)
+              .attr('height', height + margin.top + margin.bottom)
+              .append('g')
+              .attr('transform', `translate(${margin.left},${margin.top})`);
 
-        const minValue = 0xF8D9AB;
-        const maxValue = 0xCBEFE3;
-        let randomValue = getRandomInt(minValue, maxValue + 1);
-        let randomColor = "#" + randomValue.toString(16);
+      // set the sankey diagram properties
+      const sankey = d3.sankey()
+              .nodeWidth(100 * (sliderValue/10))
+              .nodePadding(sliderValue)
+              .size([width, height]);
 
-        genColours.push(randomColor);
-      }
+      const path = sankey.link();
 
-      console.log(genColours);
+      // append a defs (for definition) element to your SVG
+      const defs = svg.append('defs');
 
-      const color = d3.scaleOrdinal()
-              .domain(nodeNames)
-              .range(genColours);
+      // load the data
+      d3.json('datasets/dataset_curated.json', (error, graph) => {
+        sankey
+                .nodes(graph.nodes)
+                .links(graph.links)
+                .layout(13); // any value > 13 breaks the link gradient
 
-      // add in the links
-      const link = svg.append('g').selectAll('.link')
-              .data(graph.links)
-              .enter().append('path')
-              .attr('class', 'link')
-              .attr('d', path)
-              .style('stroke-width', d => Math.max(1, d.dy))
-              .style('fill', 'none')
-              .style('stroke-opacity', 0.18)
-              .sort((a, b) => b.dy - a.dy)
-              .on('mouseover', function() {
-                d3.select(this).style('stroke-opacity', 0.5);
-              })
-              .on('mouseout', function() {
-                d3.select(this).style('stroke-opacity', 0.2);
-              });
+        // function used too generate random value for colour generation
+        function getRandomInt(min, max) {
+          min = Math.ceil(min);
+          max = Math.floor(max);
+          return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+        }
 
-      // add the link titles
-      link.append('title')
-              .text(d => `${d.source.name} → ${d.target.name}\n${format(d.value)}`);
+        // extract the node names from the JSON file (parsed through the graph)
+        let nodeNames = [];
+        let genColours = [];
+        for (let i = 0; i < graph.nodes.length; i++) {
+          nodeNames.push(graph.nodes[i]["name"]);
 
-      // add in the nodes
-      const node = svg.append('g').selectAll('.node')
-              .data(graph.nodes)
-              .enter().append('g')
-              .attr('class', 'node')
-              .attr('transform', d => `translate(${d.x},${d.y})`)
-              .call(d3.drag()
-                      .subject(d => d)
-                      .on('start', function() {
-                        this.parentNode.appendChild(this); })
-                      .on('drag', dragmove));
+          const minValue = 0xF8D9AB;
+          const maxValue = 0xCBEFE3;
+          let randomValue = getRandomInt(minValue, maxValue + 1);
+          let randomColor = "#" + randomValue.toString(16);
 
-      // add the rectangles for the nodes
-      node.append('rect')
-              .attr('height', d => d.dy)
-              .attr('width', sankey.nodeWidth())
-              .style('fill', d => {
-                if(color.domain().indexOf(d.name) > -1){
-                  return d.color = color(d.name);
-                } else {
-                  return d.color = '#ccc';
-                }
-              })
-              .append('title')
-              .text(d => `${d.name}\n${format(d.value)}`);
+          genColours.push(randomColor);
+        }
 
-      // add in the title for the nodes
-      node.append('text')
-              .attr('x', -6)
-              .attr('y', d => d.dy / 2)
-              .attr('dy', '.35em')
-              .attr('text-anchor', 'end')
-              .attr('transform', null)
-              .text(d => d.name)
-              .filter(d => d.x < width / 2)
-              .attr('x', 6 + sankey.nodeWidth())
-              .attr('text-anchor', 'start');
+        if (colourScheme === 'staticModern'){
+            //genColours = ['#2995bf','#185b7f','#fe007f']
+            nodeNames.forEach((nodeName, i) => {
+              if (i <= 10) {
+                  genColours[i] = '#2995bf'; // blue
+              } else if (i >= 11 && i <= 57) {
+                  genColours[i] = '#185b7f'; // red
+              } else if (i >= 58) {
+                  genColours[i] = '#fe007f'; // pink
+              }
+            });
+        } else if (colourScheme === 'valentineScheme') {
+            genColours = ['#C118C7', '#E01FB3', '#FF66CC', '#FFA6E2', '#FFD6F3', '#DD9BFA']
+        }
 
+        // create scale of colors for the different node names
+        const color = d3.scaleOrdinal()
+                .domain(nodeNames)
+                .range(genColours);
 
-
-      // add gradient to links
-      link.style('stroke', (d, i) => {
-        // make unique gradient ids
-        const gradientID = `gradient${i}`;
-
-        const startColor = d.source.color;
-        const stopColor = d.target.color;
-
-
-        const linearGradient = defs.append('linearGradient')
-                .attr('id', gradientID);
-
-        linearGradient.selectAll('stop')
-                .data([
-                  {offset: '10%', color: startColor },
-                  {offset: '90%', color: stopColor }
-                ])
-                .enter().append('stop')
-                .attr('offset', d => {
-                  return d.offset;
+        // add in the links
+        const link = svg.append('g').selectAll('.link')
+                .data(graph.links)
+                .enter().append('path')
+                .attr('class', 'link')
+                .attr('d', path)
+                .style('stroke-width', d => Math.max(1, d.dy))
+                .style('fill', 'none')
+                .style('stroke-opacity', 0.18)
+                .sort((a, b) => b.dy - a.dy)
+                .on('mouseover', function () {
+                  d3.select(this).style('stroke-opacity', 0.5);
                 })
-                .attr('stop-color', d => {
-                  return d.color;
+                .on('mouseout', function () {
+                  d3.select(this).style('stroke-opacity', 0.2);
                 });
 
-        return `url(#${gradientID})`;
-      })
+        // add the link titles
+        link.append('title')
+                .text(d => `${d.source.name} → ${d.target.name}\n${format(d.value * 100)}`);
 
-// the function for moving the nodes
-      function dragmove(d) {
-        d3.select(this).attr('transform',
-                `translate(${d.x = Math.max(0, Math.min(width - d.dx, d3.event.x))},${d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))})`);
-        sankey.relayout();
-        link.attr('d', path);
-      }
-    });
+        // add in the nodes
+        const node = svg.append('g').selectAll('.node')
+                .data(graph.nodes)
+                .enter().append('g')
+                .attr('class', 'node')
+                .attr('transform', d => `translate(${d.x},${d.y})`)
+                .call(d3.drag()
+                        .subject(d => d)
+                        .on('start', function () {
+                          this.parentNode.appendChild(this);
+                        })
+                        .on('drag', dragmove))
+                .on('contextmenu', handleContextMenu) // Add the right-click event
+                .on('mouseover', highlightNodeConnections) // Add the mouseover event for highlighting connections
+                .on('mouseout', unhighlightNodeConnections); // Add the mouseout event for unhighlighting connections
+
+        // add the rectangles for the nodes
+        node.append('rect')
+                .attr('height', d => d.dy)
+                .attr('width', sankey.nodeWidth())
+                .style('fill', d => {
+                  if (color.domain().indexOf(d.name) > -1) {
+                    return d.color = color(d.name);
+                  } else {
+                    return d.color = '#ccc';
+                  }
+                })
+                .append('title')
+                .text(d => `${d.name}\n${format(d.value)}`);
+
+
+        // add in the title for the nodes
+        node.append('text')
+                .attr('x', d => sankey.nodeWidth() / 2)
+                .attr('y', d => d.dy / 2)
+                .attr('dy', '.35em')
+                .attr('text-anchor', 'middle')
+                .attr('transform', null)
+                .text(d => d.name)
+                .style('fill', 'black')
+                .style('font-size', '11px');
+
+        // Determine the maximum x value among nodes
+        const maxX = d3.max(graph.nodes, d => d.x);
+
+        // add in the values for the nodes (only for the right-most nodes)
+        node.filter(d => d.x === maxX)
+                .append('text')
+                .attr('x', d => sankey.nodeWidth() / 2)
+                .attr('y', d => d.dy / 2 + 10)
+                .attr('dy', '.35em')
+                .attr('text-anchor', 'middle')
+                .attr('transform', null)
+                .text(d => format(d.value))
+                .style('fill', 'black')
+                .style('font-size', '11px');
+
+        // add gradient to links
+        link.style('stroke', (d, i) => {
+          // make unique gradient ids
+          const gradientID = `gradient${i}`;
+
+          const startColor = d.source.color;
+          const stopColor = d.target.color;
+
+
+          const linearGradient = defs.append('linearGradient')
+                  .attr('id', gradientID);
+
+          linearGradient.selectAll('stop')
+                  .data([
+                    {offset: '10%', color: startColor},
+                    {offset: '90%', color: stopColor}
+                  ])
+                  .enter().append('stop')
+                  .attr('offset', d => {
+                    return d.offset;
+                  })
+                  .attr('stop-color', d => {
+                    return d.color;
+                  });
+
+          return `url(#${gradientID})`;
+        })
+
+        // the function for moving the nodes
+        function dragmove(d) {
+          d3.select(this).attr('transform',
+                  `translate(${d.x = Math.max(0, Math.min(width - d.dx, d3.event.x))},${d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))})`);
+          sankey.relayout();
+          link.attr('d', path);
+        }
+
+        function handleContextMenu(d, i) {
+          // Prevent the default context menu from appearing
+          d3.event.preventDefault();
+
+          d3.select("#bar-chart").remove();                                                 // Remove any existing bar chart
+
+          // Define bar chart dimensions and margins
+          const barMargin = { top: 30, right: 20, bottom: 10, left: 150 };
+          const barWidth = 1800 - barMargin.left - barMargin.right;
+          const barHeight = 2000 - barMargin.top - barMargin.bottom;
+
+          // Create an SVG for the bar chart
+          const barSvg = d3.select("#chart").append("svg")
+                  .attr("id", "bar-chart")
+                  .attr("width", barWidth + barMargin.left + barMargin.right)
+                  .attr("height", barHeight + barMargin.top + barMargin.bottom)
+                  .append("g")
+                  .attr("transform", `translate(${barMargin.left},${barMargin.top})`);
+
+          // Extract the incoming and outgoing values from the clicked node
+          const incomingValues = d.targetLinks.map(link => ({
+            category: link.source.name,
+            value: link.value
+          }));
+
+          const outgoingValues = d.sourceLinks.map(link => ({
+            category: link.target.name,
+            value: link.value
+          }));
+
+          // Combine incoming and outgoing values into one dataset
+          const barData = incomingValues.concat(outgoingValues);
+
+          // Set up scales and axes
+          const x = d3.scaleLinear().rangeRound([0, barWidth]);
+          const y = d3.scaleBand().rangeRound([barHeight, 0]).padding(0.1);
+
+          const xAxis = d3.axisTop(x);
+          const yAxis = d3.axisLeft(y);
+
+          x.domain([0, d3.max(barData, d => d.value)]);
+          y.domain(barData.map(d => d.category));
+
+          // Add the x-axis
+          barSvg.append("g")
+                  .attr("class", "axis axis--x")
+                  .call(xAxis);
+
+          // Add the y-axis
+          barSvg.append("g")
+                  .attr("class", "axis axis--y")
+                  .call(yAxis);
+
+          // Add the bars
+          barSvg.selectAll(".bar")
+                  .data(barData)
+                  .enter().append("rect")
+                  .attr("class", "bar")
+                  .attr("y", d => y(d.category))
+                  .attr("x", 0)
+                  .attr("height", y.bandwidth())
+                  .attr("width", d => x(d.value));
+        }
+
+        function highlightNodeConnections(d) {
+          // Highlight incoming links
+          d.targetLinks.forEach(link => {
+            svg.selectAll('.link')
+                    .filter(l => l.source === link.source && l.target === link.target)
+                    .style('stroke-opacity', 0.5);
+          });
+
+          // Highlight outgoing links
+          d.sourceLinks.forEach(link => {
+            svg.selectAll('.link')
+                    .filter(l => l.source === link.source && l.target === link.target)
+                    .style('stroke-opacity', 0.5);
+          });
+        }
+
+        function unhighlightNodeConnections(d) {
+          // Unhighlight incoming links
+          d.targetLinks.forEach(link => {
+            svg.selectAll('.link')
+                    .filter(l => l.source === link.source && l.target === link.target)
+                    .style('stroke-opacity', 0.2);
+          });
+
+          // Unhighlight outgoing links
+          d.sourceLinks.forEach(link => {
+            svg.selectAll('.link')
+                    .filter(l => l.source === link.source && l.target === link.target)
+                    .style('stroke-opacity', 0.2);
+          });
+        }
+      });
+    }
+
   </script>
 </div>
 </body>

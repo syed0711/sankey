@@ -54,7 +54,7 @@
         {"node":41,"name":"20,000-39,999"},
         {"node":42,"name":"40,000-69,999"},
         {"node":43,"name":">70,000"},
-        {"node":44,"name":"Don't Know"},
+        {"node":44,"name":"Unaware"},
         {"node":45,"name":"No answer"},
 
         {"node":46,"name":"Own w/ Part Own"},
@@ -67,16 +67,16 @@
         {"node":53,"name":"Rent - HA"},
         {"node":54,"name":"Living w/ F&F"},
 
-        {"node":55,"name":"Activities Limited"},
-        {"node":56,"name":"Activities Limited - High"},
-        {"node":57,"name":"Activities Limited - Low"},
+        {"node":55,"name":"Limited"},
+        {"node":56,"name":"Highly Limited"},
+        {"node":57,"name":"Mildly Limited"},
         {"node":58,"name":"No Disabilities"},
 
         {"node":59,"name":"Very Worried"},
         {"node":60,"name":"Fairly Worried"},
-        {"node":62,"name":"Not Very Worried"},
+        {"node":61,"name":"Not Very Worried"},
         {"node":62,"name":"Not Worried"},
-        {"node":63,"name":"Don't Know"}
+        {"node":63,"name":"Unknowing"}
     ],
 
     "links":[
