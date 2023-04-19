@@ -31,6 +31,25 @@ const staticModern = document.getElementById('staticModern');
 // Define a variable to store the selected color scheme
 let selectedColorScheme = 'staticModern';
 
+// document selection code
+const fileInput = document.getElementById('fileInput');
+const fileUploadBtn = document.querySelector('.file-upload-btn');
+let filePath = '';
+
+fileUploadBtn.addEventListener('click', () => {
+    fileInput.click();
+});
+
+fileInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        filePath = URL.createObjectURL(file);
+        console.log('File path:', filePath);
+    }
+});
+
+
+
 // Create event listeners for the input and select elements
 slider.addEventListener('input', (event) => {
     // remove current visualisation before generating the update
@@ -58,6 +77,110 @@ staticModern.addEventListener('click', (event) => {
 
 updateSankey(slider.value, selectedColorScheme);
 
+// save diagram as PNG
+async function svg2canvas(svg, width, height) {
+    return new Promise((resolve, reject) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+
+        const svgString = new XMLSerializer().serializeToString(svg);
+        const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(svgBlob);
+
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0, width, height);
+            URL.revokeObjectURL(url);
+            resolve(canvas);
+        };
+
+        img.onerror = (err) => {
+            URL.revokeObjectURL(url);
+            reject(err);
+        };
+
+        img.src = url;
+    });
+}
+
+// this entire function is needed because the bar chart gets saved without the colour scheme applied to the bars
+// will improve later (probably not)
+function cloneSvgWithStyles(svgElement) {
+    const clonedSvg = svgElement.cloneNode(true);
+    const styleSheets = Array.from(document.styleSheets);
+
+    let styleText = '';
+
+    for (const styleSheet of styleSheets) {
+        if (styleSheet.cssRules) {
+            try {
+                const cssRules = Array.from(styleSheet.cssRules);
+                cssRules.forEach((rule) => {
+                    if (rule.selectorText && rule.selectorText.includes('.bar')) {
+                        styleText += rule.cssText + '\n';
+                    }
+                });
+            } catch (error) {
+                console.warn('Error accessing CSS rules:', error);
+            }
+        }
+    }
+
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = styleText;
+    clonedSvg.insertBefore(styleElement, clonedSvg.firstChild);
+
+    return clonedSvg;
+}
+
+const saveAsPngBtn = document.getElementById('saveAsPng');
+
+saveAsPngBtn.addEventListener('click', async () => {
+    const sankeySvg = document.querySelector('svg'); // Sankey diagram
+    const barChartSvg = document.querySelector('#bar-chart'); // Bar chart
+
+    if (sankeySvg) {
+        saveSvgAsPng(sankeySvg, "sankey.png", { backgroundColor: "transparent" });
+    }
+
+    if (barChartSvg) {
+        saveSvgAsPng(barChartSvg, "bar-chart.png", { backgroundColor: "transparent" });
+    }
+
+    if (sankeySvg && barChartSvg) {
+        const sankeyWidth = sankeySvg.clientWidth;
+        const sankeyHeight = sankeySvg.clientHeight;
+        const barChartWidth = barChartSvg.clientWidth;
+        const barChartHeight = barChartSvg.clientHeight;
+
+        const totalWidth = sankeyWidth + barChartWidth;
+        const totalHeight = Math.max(sankeyHeight, barChartHeight);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = totalWidth;
+        canvas.height = totalHeight;
+        const ctx = canvas.getContext('2d');
+
+        const clonedSankeySvg = cloneSvgWithStyles(sankeySvg);
+        const clonedBarChartSvg = cloneSvgWithStyles(barChartSvg);
+
+        const sankeyCanvas = await svg2canvas(clonedSankeySvg, sankeyWidth, sankeyHeight);
+        ctx.drawImage(sankeyCanvas, 0, 0);
+
+        const barChartCanvas = await svg2canvas(clonedBarChartSvg, barChartWidth, barChartHeight);
+        ctx.drawImage(barChartCanvas, sankeyWidth, 0);
+
+        const dataURL = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = 'combined.png';
+        link.click();
+    }
+});
+
+
 function updateSankey(sliderValue, colourScheme) {
     d3.select('svg').remove();
     d3.select("#bar-chart").remove();
@@ -76,10 +199,20 @@ function updateSankey(sliderValue, colourScheme) {
     d3.select('#chart')
         .style('visibility', 'visible');
 
-    // append the svg canvas to the page
+    // Add zoom behavior
+    function zoomed() {
+        svg.attr('transform', d3.event.transform);
+    }
+
+    const zoom = d3.zoom()
+        .scaleExtent([1, 4]) // Define the minimum and maximum zoom scale
+        .on('zoom', zoomed);
+
+// append the svg canvas to the page
     const svg = d3.select('#chart').append('svg')
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
+        .call(zoom) // Add the zoom behavior here
         .append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 

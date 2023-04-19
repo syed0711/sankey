@@ -6,8 +6,11 @@
   <title>Sankey - Cost of Living</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.4.0/d3.min.js"></script>
-  <script src="d3.sankey.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.3/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/save-svg-as-png@1.2.0/saveSvgAsPng.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.19.0/babel.min.js"></script>
+  <script src="d3.sankey.js"></script>
 </head>
 <body>
 <div id="content">
@@ -15,6 +18,11 @@
     <input type="range" min="1" max="30" value="10" class="slider" id="range">
   </div>
   <button id="toggleGradient" class="gradient-toggle">Toggle Gradient</button>
+  <div class="file-upload-wrapper">
+    <button class="file-upload-btn">Select File</button>
+    <input type="file" id="fileInput" style="display:none" />
+  </div>
+  <button id="saveAsPng" class="save-as-png-btn">Save as PNG</button>
   <div class="dropdown">
     <button class="dropbtn">Graph Colours</button>
     <div class="dropdown-content">

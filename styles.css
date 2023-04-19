@@ -2,7 +2,7 @@
 body, html {
     height: 100%;
     margin: 0;
-    position: relative; /* Add this line */
+    position: relative;
 }
 
 body {
@@ -12,10 +12,10 @@ body {
 }
 
 .gradient-toggle {
-    background-color: #4CAF50;
+    background-color: #0e6eef;
     border: none;
     color: white;
-    padding: 7px 16px;
+    padding: 7px 18px;
     font-size: 14px;
     cursor: pointer;
     border-radius: 16px;
@@ -24,7 +24,7 @@ body {
 }
 
 .gradient-toggle:hover {
-    background-color: #3e8e41;
+    background-color: #1a5f7e;
 }
 
 #content {
@@ -64,7 +64,7 @@ body {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background: #04AA6D;
+    background: #0e6eef;
     cursor: pointer;
 }
 
@@ -72,13 +72,12 @@ body {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background: #04AA6D;
+    background: #0e6eef;
     cursor: pointer;
 }
 
 .bar {
     fill: steelblue;
-
 }
 
 .axis path,
@@ -97,14 +96,14 @@ body {
 /* Style the dropdown button */
 
 .dropdown {
-    margin-top: 10px; /* adjust the value as needed */
+    margin-top: 5px; /* adjust the value as needed */
 }
 
 .dropbtn {
-    background-color: #4CAF50;
+    background-color: #0e6eef;
     color: white;
-    padding: 16px;
-    font-size: 16px;
+    padding: 7px 21px;
+    font-size: 14px;
     border: none;
     cursor: pointer;
     border-radius: 15px;
@@ -114,7 +113,7 @@ body {
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #f9f9f9;
+    background-color: #29d8e8;
     min-width: 135px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     border-radius: 5px;
@@ -142,5 +141,51 @@ body {
 
 /* Change the background color of the dropdown button when the dropdown content is shown */
 .dropdown:hover .dropbtn {
-    background-color: #3e8e41;
+    background-color: #1a5f7e;
+}
+
+/* Add button to select dataset file */
+.file-upload-btn {
+    background-color: #0e6eef;
+    border: none;
+    color: white;
+    padding: 7px 35px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 16px;
+    transition: background-color 0.1ms;
+    margin-top: 5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.file-upload-btn:hover {
+    background-color: #1a5f7e;
+}
+
+.file-upload-btn input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+/* Save diagram as PNG button */
+.save-as-png-btn {
+    background-color: #0e6eef;
+    border: none;
+    color: white;
+    padding: 7px 25px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 16px;
+    transition: background-color 0.1ms;
+    margin-top: 5px;
+}
+
+.save-as-png-btn:hover {
+    background-color: #1a5f7e;
 }
