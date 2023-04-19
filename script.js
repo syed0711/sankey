@@ -180,6 +180,16 @@ saveAsPngBtn.addEventListener('click', async () => {
     }
 });
 
+function toggleColour() {
+    const currentColour = d3.select(".axis text").style("fill");
+    const newColour = currentColour === "white" ? "black" : "white";
+    d3.selectAll(".axis text").style("fill", newColour);
+    d3.selectAll(".axis line").style("stroke", newColour);
+    d3.selectAll(".axis path").style("stroke", newColour);
+}
+
+// Add event listener for the toggle button
+document.getElementById("toggleColour").addEventListener("click", toggleColour);
 
 function updateSankey(sliderValue, colourScheme) {
     d3.select('svg').remove();
@@ -389,17 +399,8 @@ function updateSankey(sliderValue, colourScheme) {
             link.attr('d', path);
         }
 
+        // Toggle color function
         function handleContextMenu(d, i) {
-            function styleAxisColour(axisSelection, scale) {
-                axisSelection.selectAll('text')
-                    .style('fill', 'white')
-
-                axisSelection.selectAll('path')
-                    .style('stroke', 'white');
-
-                axisSelection.selectAll('line')
-                    .style('stroke', 'white');
-            }
 
             function handleZoom() {
                 const transform = d3.event.transform || d3.zoomIdentity;
@@ -470,14 +471,12 @@ function updateSankey(sliderValue, colourScheme) {
             // Add the x-axis
             barSvg.append("g")
                 .attr("class", "axis axis--x")
-                .call(xAxis)
-                .call(styleAxisColour);
+                .call(xAxis);
 
             // Add the y-axis
             barSvg.append("g")
                 .attr("class", "axis axis--y")
-                .call(yAxis)
-                .call(styleAxisColour);
+                .call(yAxis);
 
             // Add the bars
             barSvg.selectAll(".bar")

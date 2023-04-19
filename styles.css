@@ -11,22 +11,6 @@ body {
     transition: background 0.1s;
 }
 
-.gradient-toggle {
-    background-color: #0e6eef;
-    border: none;
-    color: white;
-    padding: 7px 18px;
-    font-size: 14px;
-    cursor: pointer;
-    border-radius: 16px;
-    transition: background-color 0.1ms;
-    margin-top: 5px;
-}
-
-.gradient-toggle:hover {
-    background-color: #1a5f7e;
-}
-
 #content {
     position: relative;
     margin-left: 20px;
@@ -56,6 +40,7 @@ body {
     opacity: 0.7;
     -webkit-transition: .1s;
     transition: opacity .1s;
+    margin-top: 5px;
 }
 
 .slider::-webkit-slider-thumb {
@@ -102,7 +87,7 @@ body {
 .dropbtn {
     background-color: #0e6eef;
     color: white;
-    padding: 7px 21px;
+    padding: 7px 103px;
     font-size: 14px;
     border: none;
     cursor: pointer;
@@ -122,7 +107,7 @@ body {
 /* Style the links inside the dropdown */
 .dropdown-content a {
     color: black;
-    padding: 10px 10px;
+    padding: 10px 90px;
     text-decoration: none;
     display: block;
     border-radius: 5px;
@@ -149,7 +134,7 @@ body {
     background-color: #0e6eef;
     border: none;
     color: white;
-    padding: 7px 35px;
+    padding: 7px 42px;
     font-size: 14px;
     cursor: pointer;
     border-radius: 16px;
@@ -178,7 +163,7 @@ body {
     background-color: #0e6eef;
     border: none;
     color: white;
-    padding: 7px 25px;
+    padding: 7px 29px;
     font-size: 14px;
     cursor: pointer;
     border-radius: 16px;
@@ -187,5 +172,39 @@ body {
 }
 
 .save-as-png-btn:hover {
+    background-color: #1a5f7e;
+}
+
+/* Change bar-chart colour */
+.colour-toggle {
+    background-color: #0e6eef;
+    border: none;
+    color: white;
+    padding: 7px 35px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 16px;
+    transition: background-color 0.1ms;
+    margin-top: 5px;
+}
+
+.colour-toggle:hover {
+    background-color: #1a5f7e;
+}
+
+/* Toggle gradient type */
+.gradient-toggle {
+    background-color: #0e6eef;
+    border: none;
+    color: white;
+    padding: 7px 23px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 16px;
+    transition: background-color 0.1ms;
+    margin-top: 5px;
+}
+
+.gradient-toggle:hover {
     background-color: #1a5f7e;
 }
