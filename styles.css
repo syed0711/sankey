@@ -15,6 +15,7 @@ body {
     position: relative;
     margin-left: 20px;
     margin-top: 20px;
+
 }
 
 .node rect {
@@ -25,14 +26,16 @@ body {
 
 .node text {
     pointer-events: none;
-    font-family: Helvetica;
+    font-family: "Verdana";
     font-size: 12px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .slider {
     position: sticky;
     -webkit-appearance: none;
-    width: 1980px;
+    width: 534px;
     height: 15px;
     border-radius: 5px;
     background: #d3d3d3;
@@ -61,14 +64,24 @@ body {
     cursor: pointer;
 }
 
-.bar {
-    fill: steelblue;
+
+
+/* Grid lines */
+.grid line {
+    stroke: #ccc;
+    stroke-opacity: 0.7;
+    shape-rendering: crispEdges;
 }
 
+.grid path {
+    stroke-width: 0;
+}
+
+/* Axis */
 .axis path,
 .axis line {
     fill: none;
-    stroke: #000;
+    stroke: #ffffff;
     shape-rendering: crispEdges;
     margin-top: 10px;
 }
@@ -87,7 +100,7 @@ body {
 .dropbtn {
     background-color: #0e6eef;
     color: white;
-    padding: 7px 103px;
+    padding: 7px 223px;
     font-size: 14px;
     border: none;
     cursor: pointer;
@@ -107,7 +120,7 @@ body {
 /* Style the links inside the dropdown */
 .dropdown-content a {
     color: black;
-    padding: 10px 90px;
+    padding: 10px 210px;
     text-decoration: none;
     display: block;
     border-radius: 5px;
@@ -134,7 +147,7 @@ body {
     background-color: #0e6eef;
     border: none;
     color: white;
-    padding: 7px 42px;
+    padding: 7px 80px;
     font-size: 14px;
     cursor: pointer;
     border-radius: 16px;
@@ -163,7 +176,7 @@ body {
     background-color: #0e6eef;
     border: none;
     color: white;
-    padding: 7px 29px;
+    padding: 7px 93px;
     font-size: 14px;
     cursor: pointer;
     border-radius: 16px;
@@ -180,7 +193,7 @@ body {
     background-color: #0e6eef;
     border: none;
     color: white;
-    padding: 7px 35px;
+    padding: 7px 93px;
     font-size: 14px;
     cursor: pointer;
     border-radius: 16px;
@@ -197,7 +210,7 @@ body {
     background-color: #0e6eef;
     border: none;
     color: white;
-    padding: 7px 23px;
+    padding: 7px 85px;
     font-size: 14px;
     cursor: pointer;
     border-radius: 16px;
@@ -207,4 +220,81 @@ body {
 
 .gradient-toggle:hover {
     background-color: #1a5f7e;
+}
+
+/* Sliders + dropdown menu positioning */
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sliders-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.select-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.select-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 8px solid #333;
+    pointer-events: none;
+}
+
+/* Alignment Dropdown Menu */
+#alignment-dropdown {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+    width: 150px;
+    padding: 10px 15px;
+    font-size: 16px;
+    font-family: inherit;
+    color: #ffffff;
+    background-color: #0e6eef;
+    border: 1px solid #dcdcdc;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#alignment-dropdown:focus {
+    border-color: #4CAF50;
+}
+
+/* Hide the default checkbox */
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    position: absolute;
+    right: -40px;
+    top:4px;
+    height: 25px;
+    width: 25px;
+    border-radius: 1px;
+    outline: none;
+    border: none;
+    background: #fff;
+    box-shadow: 0 0 0 2px #ddd;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+/* Style the checked state */
+input[type="checkbox"]:checked {
+    background: #0e6eef;
+    box-shadow: 0 0 0 2px #ddd;
 }
