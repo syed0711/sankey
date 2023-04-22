@@ -3,6 +3,8 @@
 D3 Sankey & Bar-chart Visualisation for a dataset focusing on the cost of living worry post-covid based on a UK survey.
 Done in Javascript, HTML and CSS, with dataset curation in Python 3. The D3 library used is version 4.
 
+NOTE April 2023: The javascript XLSX to JSON conversion, is a work in progress, and currently has some issues with the link generation, I recomment using the available Python3 script in the root of the directory for a flawless conversion.
+
 Webapp demo screenshot:
 <img width="1712" alt="Screenshot 2023-04-21 133159" src="https://user-images.githubusercontent.com/94687473/233674321-4f9d2577-79d1-4aa5-a8aa-b5b8ee02a897.png">
 
