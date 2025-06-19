@@ -96,10 +96,9 @@ d3.sankey = function() {
     // Compute the value (size) of each node by summing the associated links.
     function computeNodeValues() {
         nodes.forEach(function(node) {
-            node.value = Math.max(
-                d3.sum(node.sourceLinks, value),
-                d3.sum(node.targetLinks, value)
-            );
+            node.sourceValue = d3.sum(node.sourceLinks, value);
+            node.targetValue = d3.sum(node.targetLinks, value);
+            node.value = Math.max(node.sourceValue, node.targetValue);
         });
     }
 
@@ -263,11 +262,15 @@ d3.sankey = function() {
         });
         nodes.forEach(function(node) {
             var sy = 0, ty = 0;
+            var sourceSum = node.sourceValue || d3.sum(node.sourceLinks, value);
+            var targetSum = node.targetValue || d3.sum(node.targetLinks, value);
             node.sourceLinks.forEach(function(link) {
+                link.dy = node.dy * (link.value / sourceSum);
                 link.sy = sy;
                 sy += link.dy;
             });
             node.targetLinks.forEach(function(link) {
+                link.dy = node.dy * (link.value / targetSum);
                 link.ty = ty;
                 ty += link.dy;
             });
