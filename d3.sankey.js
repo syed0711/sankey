@@ -59,12 +59,21 @@ d3.sankey = function() {
                 xi = d3.interpolateNumber(x0, x1),
                 x2 = xi(curvature),
                 x3 = xi(1 - curvature),
-                y0 = d.source.y + d.sy + d.dy / 2,
-                y1 = d.target.y + d.ty + d.dy / 2;
-            return "M" + x0 + "," + y0
-                + "C" + x2 + "," + y0
-                + " " + x3 + "," + y1
-                + " " + x1 + "," + y1;
+                y0 = d.source.y + d.sy + d.dySource / 2,
+                y1 = d.target.y + d.ty + d.dyTarget / 2,
+                y0a = y0 - d.dySource / 2,
+                y0b = y0 + d.dySource / 2,
+                y1a = y1 - d.dyTarget / 2,
+                y1b = y1 + d.dyTarget / 2;
+            return "M" + x0 + "," + y0a
+                + "C" + x2 + "," + y0a
+                + " " + x3 + "," + y1a
+                + " " + x1 + "," + y1a
+                + "L" + x1 + "," + y1b
+                + "C" + x3 + "," + y1b
+                + " " + x2 + "," + y0b
+                + " " + x0 + "," + y0b
+                + "Z";
         }
 
         link.curvature = function(_) {
@@ -265,15 +274,19 @@ d3.sankey = function() {
             var sourceSum = node.sourceValue || d3.sum(node.sourceLinks, value);
             var targetSum = node.targetValue || d3.sum(node.targetLinks, value);
             node.sourceLinks.forEach(function(link) {
-                link.dy = node.dy * (link.value / sourceSum);
+                link.dySource = node.dy * (link.value / sourceSum);
                 link.sy = sy;
-                sy += link.dy;
+                sy += link.dySource;
             });
             node.targetLinks.forEach(function(link) {
-                link.dy = node.dy * (link.value / targetSum);
+                link.dyTarget = node.dy * (link.value / targetSum);
                 link.ty = ty;
-                ty += link.dy;
+                ty += link.dyTarget;
             });
+        });
+
+        links.forEach(function(link) {
+            link.dy = (link.dySource + link.dyTarget) / 2;
         });
 
         function ascendingSourceDepth(a, b) {
