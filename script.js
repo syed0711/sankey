@@ -558,23 +558,21 @@ function updateSankey(slider1Value, slider2Value, colourScheme, align, toggleSwi
             .enter().append('path')
             .attr('class', 'link')
             .attr('d', path)
-            .style('stroke-width', d => Math.max(1, d.dy))
-            .style('fill', 'none')
-            .style('stroke-opacity', 0)
+            .style('fill-opacity', 0)
+            .style('stroke', 'none')
             .sort((a, b) => b.dy - a.dy)
             .on('mouseover', function() {
-                d3.select(this).style('stroke-opacity', 0.7);
+                d3.select(this).style('fill-opacity', 0.7);
             })
             .on('mouseout', function() {
-                d3.select(this).style('stroke-opacity', 0.3);
+                d3.select(this).style('fill-opacity', 0.3);
             });
 
 // add transition to links
         link.transition()
             .duration(100) // set the duration of the transition
             .delay((d, i) => i * 20) // set a delay for each link based on its index
-            .style('stroke-opacity', 0.3) // animate the stroke opacity from 0.18 to 0.8
-            .style('stroke-width', d => Math.max(1, d.dy * 0.8)); // animate the stroke width based on the link's thickness
+            .style('fill-opacity', 0.3); // animate the fill opacity
 
         // append text on mouse hover
         link.append('title')
@@ -686,7 +684,7 @@ function updateSankey(slider1Value, slider2Value, colourScheme, align, toggleSwi
             .style('font-size', '10px', 'bold');
 
         // add gradient to links
-        link.style('stroke', (d, i) => {
+        link.style('fill', (d, i) => {
             // make unique gradient ids
             const gradientID = `gradient${i}`;
 
@@ -726,14 +724,14 @@ function updateSankey(slider1Value, slider2Value, colourScheme, align, toggleSwi
             d.targetLinks.forEach(link => {
                 svg.selectAll('.link')
                     .filter(l => l.source === link.source && l.target === link.target)
-                    .style('stroke-opacity', 0.7);
+                    .style('fill-opacity', 0.7);
             });
 
             // Highlight outgoing links
             d.sourceLinks.forEach(link => {
                 svg.selectAll('.link')
                     .filter(l => l.source === link.source && l.target === link.target)
-                    .style('stroke-opacity', 0.7);
+                    .style('fill-opacity', 0.7);
             });
         }
 
@@ -744,7 +742,7 @@ function updateSankey(slider1Value, slider2Value, colourScheme, align, toggleSwi
                 d.targetLinks.forEach(link => {
                     svg.selectAll('.link')
                         .filter(l => l.source === link.source && l.target === link.target)
-                        .style('stroke-opacity', strokeOpacity);
+                        .style('fill-opacity', strokeOpacity);
                 });
             }
 
@@ -753,7 +751,7 @@ function updateSankey(slider1Value, slider2Value, colourScheme, align, toggleSwi
                 d.sourceLinks.forEach(link => {
                     svg.selectAll('.link')
                         .filter(l => l.source === link.source && l.target === link.target)
-                        .style('stroke-opacity', strokeOpacity);
+                        .style('fill-opacity', strokeOpacity);
                 });
             }
 
